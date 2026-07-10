@@ -1,0 +1,236 @@
+# Restaurant Management System — Project Rules
+
+## Overview
+
+Build a restaurant management system with a ** simple monolithic backend ** and a ** polished Next.js frontend **.Keep the server intentionally minimal; invest more effort in a clean, usable client UI.
+
+---
+
+## Tech Stack
+
+### Server(keep it simple)
+  - ** Runtime:** Node.js
+    - ** Framework:** Express
+      - ** Database:** MongoDB with the native `mongodb` driver
+        - ** Language:** JavaScript only — ** never use TypeScript **
+- ** Architecture:** Single - file API — all routes and logic live in `server/index.js`
+  - ** Do NOT use:** Mongoose, MVC, controllers /, routes /, services / folders, or layered backend architecture
+
+### Client(reasonable, production - quality UI)
+  - ** Framework:** Next.js(App Router)
+    - ** Language:** JavaScript only — ** never use TypeScript ** (no`.ts`, `.tsx`, or`tsconfig.json`)
+      - ** Auth:** Better Auth
+        - ** Styling:** Tailwind CSS + DaisyUI
+          - ** HTTP:** `fetch` or a thin wrapper(no heavy state libraries unless clearly needed)
+
+---
+
+## Project Structure
+
+  ```
+restaurant-management/
+├── server/
+│   ├── index.js          # ALL backend code lives here
+│   ├── package.json
+│   └── .env              # MONGODB_URI, PORT, CLIENT_URL, etc.
+└── client/
+    ├── app/              # Next.js App Router pages
+    ├── components/       # Reusable UI components
+    ├── lib/              # auth client, API helpers, constants
+    ├── public/
+    ├── package.json
+    ├── tailwind.config.js
+    ├── postcss.config.js
+    └── jsconfig.json     # path aliases (@/components, @/lib)
+```
+
+---
+
+## Backend Rules(`server/index.js`)
+
+### Single - file pattern
+  - One`index.js` file contains: Express setup, MongoDB connection, collection references, middleware, and all API routes.
+- Group code with clear comment sections:
+
+```js
+// ─── Dependencies ───
+// ─── Config ───
+// ─── MongoDB Connection ───
+// ─── Collections ───
+// ─── Middleware ───
+// ─── Routes ───
+// ─── Start Server ───
+```
+
+### Database pattern(MongoDB — no Mongoose)
+  - Use the official `mongodb` package(`MongoClient`) — ** never use Mongoose **
+    - Connect once on startup, store`db` and collection references at the top of the file
+      - Use plain JavaScript objects for documents — no schemas, no models
+        - Use`ObjectId` from `mongodb` for document IDs
+          - Example:
+
+  ```js
+const { MongoClient, ObjectId } = require('mongodb');
+
+let db;
+const client = new MongoClient(process.env.MONGODB_URI);
+
+async function connectDB() {
+  await client.connect();
+  db = client.db('restaurant-db');
+}
+
+// In routes:
+const menu = db.collection('menus');
+const items = await menu.find({}).toArray();
+await menu.insertOne({ name, price, category, available: true });
+await menu.updateOne({ _id: new ObjectId(id) }, { $set: { name, price } });
+await menu.deleteOne({ _id: new ObjectId(id) });
+```
+
+### API conventions
+  - Base path: `/api`
+    - Use REST - style endpoints:
+- `GET    /api/menu` — list menu items
+  - `POST   /api/menu` — create menu item
+    - `PUT    /api/menu/:id` — update menu item
+      - `DELETE /api/menu/:id` — delete menu item
+        - Return JSON: `{ success: true, data }` or`{ success: false, message }`
+          - Use appropriate HTTP status codes(200, 201, 400, 404, 500)
+            - Enable CORS for the Next.js client origin
+              - Use`express.json()` middleware
+                - Load env vars with `dotenv`
+
+### Core domains(restaurant features)
+Implement only what is needed; typical modules:
+- ** Menu ** — name, description, price, category, image URL, available
+  - ** Orders ** — items, table / order type, status(pending → preparing → ready → served → paid), total
+    - ** Tables ** — number, capacity, status(available / occupied / reserved)
+      - ** Staff / Users ** — managed via Better Auth on the client; server validates sessions / roles where needed
+        - ** Reservations ** — guest name, phone, date / time, party size, table
+
+### What to avoid on the server
+  - No separate route / controller / model files
+    - No TypeScript on the server
+      - No Mongoose or any ORM
+        - No over - abstraction(no repository pattern, no service layer)
+          - No unnecessary packages — stick to: `express`, `mongodb`, `cors`, `dotenv`, and auth - related deps as needed
+
+---
+
+## Frontend Rules(`client/`)
+
+### JavaScript only
+  - All files use `.js` and `.jsx` extensions
+    - Use`jsconfig.json` for path aliases, not`tsconfig.json`
+      - No type annotations, interfaces, or`.d.ts` files
+
+### Next.js conventions
+  - Use App Router(`app/` directory)
+    - Server Components by default ; add `"use client"` only when needed(forms, interactivity, hooks)
+      - Colocate page - specific components near their route when small; shared components go in `components/`
+        - Use`loading.js` and `error.js` where appropriate
+          - Environment variables: `NEXT_PUBLIC_API_URL` for the Express server
+
+### Better Auth
+  - Configure Better Auth in `lib/auth.js`(or`lib/auth-client.js`)
+    - Protect dashboard / admin routes with auth checks
+      - Support roles: `admin`, `manager`, `staff`(adjust UI and API access by role)
+        - Store session on the client; send credentials / cookies with API requests as Better Auth requires
+
+### Tailwind + DaisyUI UI standards
+  - Use DaisyUI components: `btn`, `card`, `table`, `modal`, `navbar`, `drawer`, `badge`, `alert`, `input`, `select`
+    - Pick one DaisyUI theme(e.g. `corporate` or`light`) and stay consistent
+      - Build a ** reasonable ** frontend:
+- Responsive layout(mobile - friendly sidebar or drawer nav)
+  - Clear dashboard with key stats(today's orders, revenue, table status)
+    - CRUD pages for menu, orders, tables, reservations
+      - Loading states, empty states, and error toasts / alerts
+        - Consistent spacing, typography, and color — no raw unstyled HTML
+          - Do not add extra CSS frameworks beyond Tailwind + DaisyUI
+
+### Suggested pages
+  ```
+/                  → Landing or redirect to dashboard
+/login             → Auth page
+/dashboard         → Overview stats
+/menu              → Menu management
+/orders            → Order list + status updates
+/tables            → Table layout / status
+/reservations      → Booking management
+/settings          → Profile / basic settings (admin)
+```
+
+### API calls from client
+  - Centralize base URL in `lib/api.js`
+    - Example pattern:
+
+```js
+const API = process.env.NEXT_PUBLIC_API_URL;
+
+export async function getMenu() {
+  const res = await fetch(`${ API } /api/menu`);
+  if (!res.ok) throw new Error('Failed to fetch menu');
+  return res.json();
+}
+```
+
+---
+
+## Coding Standards
+
+### General
+  - Use`async/await` over raw `.then()` chains
+    - Meaningful variable and function names
+- Minimal comments — only for non - obvious logic
+  - Handle errors; never swallow exceptions silently
+    - Validate request bodies on the server before saving to MongoDB
+
+### Naming
+  - Files: `kebab-case.js`(e.g. `order-card.jsx`)
+    - Components: `PascalCase`(e.g. `OrderCard`)
+      - API routes: plural nouns(`/api/orders`, not`/api/order`)
+        - MongoDB collections: plural lowercase(`menus`, `orders`, `tables`)
+
+### Security basics
+  - Never commit `.env` files
+    - Sanitize user input before database writes
+      - Restrict destructive actions(delete menu, cancel order) to`admin` / `manager` roles
+        - Use environment variables for secrets(DB URI, auth secret)
+
+---
+
+## When Generating Code
+
+1. ** Backend changes ** → edit only `server/index.js` unless adding `package.json` or env example
+2. ** Frontend changes ** → use Next.js App Router + DaisyUI components; no TypeScript
+3. ** New feature ** → add collection queries + routes in `index.js`, then build the matching page / components on the client
+4. ** Keep diffs focused ** — do not refactor unrelated code or introduce new architecture patterns
+5. ** Prefer working simplicity ** over enterprise patterns
+
+---
+
+## Environment Variables
+
+### server /.env
+  ```
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/restaurant-db
+CLIENT_URL=http://localhost:3000
+```
+
+### client /.env.local
+  ```
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+---
+
+## Do Not
+
+  - Do not use TypeScript anywhere in this project(server or client)
+    - Do not use Mongoose — use only the native `mongodb` driver
+      - Do not split the backend into MVC folders or multiple route files
+        - Do not add Redux, Zustand, or heavy state libraries unless explicitly requested
+          - Do not use CSS modules, styled - components, or Bootstrap — Tailwind + DaisyUI only
+            - Do not over - engineer the backend — one `index.js` file is the rule
