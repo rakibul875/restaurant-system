@@ -11,10 +11,10 @@ Master task list for building the MVP. Reference docs: [`Architecture.md`](Archi
 | Status | Count |
 |---|---|
 | Total tasks | 46 |
-| Done `[x]` | 0 |
+| Done `[x]` | 7 |
 | In progress `[~]` | 0 |
-| Not started `[ ]` | 46 |
-| **Batches complete** | **0 / 10** |
+| Not started `[ ]` | 39 |
+| **Batches complete** | **1 / 10** |
 
 **Last updated:** 2026-07-10 (Starting MVP implementation from scratch)
 
@@ -26,7 +26,7 @@ Recommended execution order. Run batches sequentially — each batch depends on 
 
 | Batch | Name | Tasks | Progress | Status | Prerequisite |
 |---|---|---|---|---|---|
-| **1** | Foundation | T-001 – T-007 | 0 / 7 | `[ ]` **Not started** | — |
+| **1** | Foundation | T-001 – T-007 | 7 / 7 | `[x]` **Done** | — |
 | **2** | Auth + UI shells | T-008 – T-016 | 0 / 9 | `[ ]` **Not started** | Batch 1 |
 | **3** | Menu | T-017 – T-020 | 0 / 4 | `[ ]` **Not started** | Batch 2 |
 | **4** | Tables | T-021 – T-024 | 0 / 4 | `[ ]` **Not started** | Batch 3 |
@@ -41,14 +41,14 @@ Recommended execution order. Run batches sequentially — each batch depends on 
 
 ### Batch details
 
-#### Batch 1 — Foundation `[ ]` Not started
+#### Batch 1 — Foundation `[x]` Done
 
 | | |
 |---|---|
 | **Tasks** | T-001, T-002, T-003, T-004, T-005, T-006, T-007 |
 | **Goal** | Running Express server + MongoDB health check; Next.js client with all route placeholders, API client, constants, theme |
 | **Milestone** | `npm start` (server) + `npm run dev` (client) both work; all routes resolve |
-| **Completed** | — |
+| **Completed** | 2026-07-10 |
 
 #### Batch 2 — Auth + UI shells `[ ]` Not started
 
@@ -158,7 +158,7 @@ flowchart TD
   B9 --> B10
 ```
 
-**Recommended next step:** Start Batch 1 (Foundation) tasks T-001 through T-007.
+**Recommended next step:** Start Batch 2 (Auth + UI shells) tasks T-008 through T-016.
 
 ---
 
@@ -166,13 +166,13 @@ flowchart TD
 
 | ID | Task | Status |
 |---|---|---|
-| T-001 | Server project scaffold | `[ ]` |
-| T-002 | MongoDB connection + health API | `[ ]` |
-| T-003 | Client project scaffold (Next.js, Tailwind, DaisyUI) | `[ ]` |
-| T-004 | Client App Router folder structure | `[ ]` |
-| T-005 | API client (`lib/api.js`) | `[ ]` |
-| T-006 | Shared constants (`lib/constants.js`) | `[ ]` |
-| T-007 | Root layout + global styles + theme | `[ ]` |
+| T-001 | Server project scaffold | `[x]` |
+| T-002 | MongoDB connection + health API | `[x]` |
+| T-003 | Client project scaffold (Next.js, Tailwind, DaisyUI) | `[x]` |
+| T-004 | Client App Router folder structure | `[x]` |
+| T-005 | API client (`lib/api.js`) | `[x]` |
+| T-006 | Shared constants (`lib/constants.js`) | `[x]` |
+| T-007 | Root layout + global styles + theme | `[x]` |
 | T-008 | Better Auth server config | `[ ]` |
 | T-009 | Better Auth API route handler | `[ ]` |
 | T-010 | Better Auth client | `[ ]` |
@@ -229,7 +229,7 @@ flowchart TD
 
 ### US-00: As a developer, I need the project scaffold so I can run server and client locally
 
-#### T-001 — Server project scaffold `[ ]`
+#### T-001 — Server project scaffold `[x]`
 
 **Sub-tasks**
 - [ ] Create `server/package.json` with express, mongodb, cors, dotenv
@@ -243,7 +243,7 @@ flowchart TD
 
 ---
 
-#### T-002 — MongoDB connection + health API `[ ]`
+#### T-002 — MongoDB connection + health API `[x]`
 
 **Sub-tasks**
 - [ ] Connect `MongoClient` using `MONGODB_URI` and `DB_NAME`
@@ -259,7 +259,7 @@ flowchart TD
 
 ---
 
-#### T-003 — Client project scaffold `[ ]`
+#### T-003 — Client project scaffold `[x]`
 
 **Sub-tasks**
 - [ ] Initialize Next.js app in `client/` (App Router, JavaScript, no TypeScript)
@@ -274,7 +274,7 @@ flowchart TD
 
 ---
 
-#### T-004 — Client App Router folder structure `[ ]`
+#### T-004 — Client App Router folder structure `[x]`
 
 **Sub-tasks**
 - [ ] Create route group `app/(public)/` with placeholder pages: `page.js`, `menu`, `order`, `reserve`, `bill/[id]`
@@ -291,7 +291,7 @@ flowchart TD
 
 ---
 
-#### T-005 — API client (`lib/api.js`) `[ ]`
+#### T-005 — API client (`lib/api.js`) `[x]`
 
 **Sub-tasks**
 - [ ] Create fetch wrapper using `NEXT_PUBLIC_API_URL`
@@ -308,7 +308,7 @@ flowchart TD
 
 ---
 
-#### T-006 — Shared constants (`lib/constants.js`) `[ ]`
+#### T-006 — Shared constants (`lib/constants.js`) `[x]`
 
 **Sub-tasks**
 - [ ] Define `ORDER_STATUSES`, `RESERVATION_STATUSES`, `TABLE_STATUSES`, `PAYMENT_STATUSES`
@@ -323,7 +323,7 @@ flowchart TD
 
 ---
 
-#### T-007 — Root layout + global styles + theme `[ ]`
+#### T-007 — Root layout + global styles + theme `[x]`
 
 **Sub-tasks**
 - [ ] Create `app/layout.js` with `<html data-theme="corporate">` (or chosen theme)
